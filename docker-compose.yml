@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # 1. Frontend (Vue.js)
+  frontend:
+    build: ./frontend/frontend-app
+    ports:
+      - "8080:80"
+    depends_on:
+      - api-gateway
+
+  # 2. API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - USER_SERVICE_URL=http://user-service:3001
+      - PRODUCT_SERVICE_URL=http://product-service:3003
+      - REVIEW_SERVICE_URL=http://review-service:3004
+    depends_on:
+      - user-service
+      - product-service
+      - review-service
+
+  # 3. User Service
+  user-service:
+    build: ./user-service
+    environment:
+      - DB_HOST=user-db
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=userdb
+    depends_on:
+      - user-db
+
+  # 4. User Database (PostgreSQL)
+  user-db:
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=userdb
+    volumes:
+      - user_data:/var/lib/postgresql/data
+
+  # 5. Product Service
+  product-service:
+    build: ./product-service
+    environment:
+      - MONGODB_URI=mongodb://product-db:27017
+      - DB_NAME=productdb
+    depends_on:
+      - product-db
+
+  # 6. Product Database (MongoDB)
+  product-db:
+    image: mongo:5
+    volumes:
+      - product_data:/data/db
+
+  # 7. Review Service
+  review-service:
+    build: ./review-service
+    environment:
+      - MONGODB_URI=mongodb://review-db:27017
+      - DB_NAME=reviewdb
+    depends_on:
+      - review-db
+
+  # 8. Review Database (MongoDB)
+  review-db:
+    image: mongo:5
+    volumes:
+      - review_data:/data/db
+
+volumes:
+  user_data:
+  product_data:
+  review_data:
