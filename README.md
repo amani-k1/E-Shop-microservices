@@ -27,7 +27,7 @@ Le projet est structuré autour de conteneurs Docker interconnectés :
 
 ---
 
-## 🚀 Prérequis
+##  Prérequis
 
 Avant de commencer, assurez-vous d'avoir installé :
 
